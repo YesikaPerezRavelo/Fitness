@@ -44,10 +44,6 @@ app.use(express.static("public"));
 app.use("/js", express.static(__dirname + "/path/to/js"));
 app.use(cookieParser());
 
-//Passport
-initializatePassport();
-app.use(passport.initialize());
-
 // Use express-session before passport.session()
 app.use(
   session({
@@ -61,6 +57,9 @@ app.use(
   })
 );
 
+//Passport
+initializatePassport();
+app.use(passport.initialize());
 app.use(passport.session());
 
 // Routers
