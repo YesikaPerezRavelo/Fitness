@@ -61,7 +61,7 @@ router.get(
       res.render("user", {
         title: "YesFitness | Usuario",
         style: "index.css",
-        user: req.user,
+        user: req.user.user,
         cart: [],
       });
     } catch (error) {
