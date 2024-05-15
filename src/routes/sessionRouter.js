@@ -40,7 +40,7 @@ sessionRouter.get("/failRegister", (_req, res) => {
 
 sessionRouter.post("/login", async (_req, res) => {
   const user = await userManagerService.findUserEmail(_req.body.email);
-  if (!user || isValidPassword(user, _req.body.passport)) {
+  if (!user || !isValidPassword(user, _req.body.password)) {
     return res.status(401).send({
       status: "error",
       message: "Error login!",
