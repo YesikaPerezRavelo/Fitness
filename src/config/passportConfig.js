@@ -26,7 +26,7 @@ const initializePassport = () => {
   const secretKey = process.env.SECRET_KEY;
 
   passport.use(
-    "register",
+    "jwt",
     new JWTStrategy(
       {
         jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),

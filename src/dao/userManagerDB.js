@@ -32,6 +32,26 @@ export default class userManagerDB {
     }
   }
 
+  async loginUser(email, password) {
+    if (!email || !password) {
+      throw new Error("Invalid credentials!");
+    }
+    try {
+      const user = await userModel.findOne({ email }).lean();
+
+      if (!user) throw new Error("Invalid user!");
+
+      if (isValidPassword(user, password)) {
+        const token = jwt.sign(user, "secretKey", { expiresIn: "1h" });
+        return { token, user };
+      } else {
+        throw new Error("Invalid Password!");
+      }
+    } catch (error) {
+      throw new Error("Login Error!");
+    }
+  }
+
   async updateUser(userId, cartId) {
     try {
       const result = await userModel.findByIdAndUpdate(userId, {

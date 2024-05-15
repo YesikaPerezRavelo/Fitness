@@ -1,9 +1,12 @@
 import jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
 
-const PRIVATE_KEY = "1234";
+dotenv.config();
+
+const secretKey = process.env.SECRET_KEY;
 
 const generateToken = (user) => {
-  const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: "1h" });
+  const token = jwt.sign({ user }, secretKey, { expiresIn: "1h" });
 
   return token;
 };
@@ -17,7 +20,7 @@ const authToken = (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1]; //Remove string "Bearer"
-  jwt.verify(token, PRIVATE_KEY, (error, credentials) => {
+  jwt.verify(token, secretKey, (error, credentials) => {
     if (error) {
       return res.status(403).send({
         error: "Not authenticated",

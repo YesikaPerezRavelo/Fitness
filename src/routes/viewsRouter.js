@@ -4,6 +4,7 @@ import messageManagerDB from "../dao/messageManagerDB.js";
 import cartManagerDB from "../dao/cartManagerDB.js";
 import { auth } from "../middlewares/auth.js";
 import { userModel } from "../dao/models/userModel.js";
+import passport from "passport";
 
 const router = Router();
 const productManagerService = new productManagerDB();
@@ -52,21 +53,23 @@ router.get("/register", (req, res) => {
 //   });
 // });
 
-router.get("/user", auth, async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const user = await userModel.findById(userId).populate("cart").lean();
-    res.render("user", {
-      title: "YesFitness | Usuario",
-      style: "index.css",
-      user: req.session.user,
-      cart: user.cart?.products || [],
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
+router.get(
+  "/user",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      res.render("user", {
+        title: "YesFitness | Usuario",
+        style: "index.css",
+        user: req.user,
+        cart: [],
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Internal Server Error");
+    }
   }
-});
+);
 
 router.get("/products", async (req, res) => {
   let { limit = 5, page = 1 } = req.query;

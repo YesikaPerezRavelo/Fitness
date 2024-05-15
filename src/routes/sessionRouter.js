@@ -1,6 +1,8 @@
 import { Router } from "express";
 import userManagerDB from "../dao/userManagerDB.js";
 import passport from "passport";
+import { generateToken } from "../utils/utils.js";
+import { isValidPassword } from "../utils/functionUtil.js";
 
 const sessionRouter = Router();
 
@@ -37,13 +39,14 @@ sessionRouter.get("/failRegister", (_req, res) => {
 });
 
 sessionRouter.post("/login", async (_req, res) => {
-  const token = await userManagerService.getUsers();
-  if (!token) {
+  const user = await userManagerService.findUserEmail(_req.body.email);
+  if (!user || isValidPassword(user, _req.body.passport)) {
     return res.status(401).send({
       status: "error",
       message: "Error login!",
     });
   }
+  const token = generateToken(user);
   res.cookie("auth", token, { maxAge: 60 * 60 * 1000, httpOnly: true });
   res.redirect(303, "/user");
 });
