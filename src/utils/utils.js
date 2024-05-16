@@ -19,13 +19,14 @@ const authToken = (req, res, next) => {
     });
   }
 
-  const token = authHeader.split(" ")[1]; //Remove string "Bearer"
+  const token = authHeader().split(" ")[0]; //Remove string "Bearer"
   jwt.verify(token, secretKey, (error, credentials) => {
     if (error) {
       return res.status(403).send({
         error: "Not authenticated",
       });
     }
+    console.log(token);
 
     req.user = credentials.user;
     next();
