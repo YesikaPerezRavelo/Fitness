@@ -5,7 +5,6 @@ import { generateToken } from "../utils/utils.js";
 import { isValidPassword } from "../utils/functionUtil.js";
 
 const sessionRouter = Router();
-
 const userManagerService = new userManagerDB();
 
 sessionRouter.get("/users", async (_req, res) => {
@@ -38,9 +37,9 @@ sessionRouter.get("/failRegister", (_req, res) => {
   });
 });
 
-sessionRouter.post("/login", async (_req, res) => {
-  const user = await userManagerService.findUserEmail(_req.body.email);
-  if (!user || !isValidPassword(user, _req.body.password)) {
+sessionRouter.post("/login", async (req, res) => {
+  const user = await userManagerService.findUserEmail(req.body.email);
+  if (!user || !isValidPassword(user, req.body.password)) {
     return res.status(401).send({
       status: "error",
       message: "Error login!",
@@ -60,26 +59,25 @@ sessionRouter.get("/failLogin", (_req, res) => {
 
 sessionRouter.get(
   "/github",
-  passport.authenticate("github", { scope: ["user:email"] }),
-  (_req, res) => {
-    res.send({
-      status: "success",
-      message: "Success",
-    });
-  }
+  passport.authenticate("github", { scope: ["user:email"] })
 );
 
 sessionRouter.get(
   "/githubcallback",
   passport.authenticate("github", { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.user = req.user;
-    res.redirect("/user");
+    if (req.user) {
+      const token = generateToken(req.user);
+      res.cookie("auth", token, { maxAge: 60 * 60 * 1000, httpOnly: true });
+      res.redirect("/user");
+    } else {
+      res.redirect("/login");
+    }
   }
 );
 
 sessionRouter.get("/logout", (req, res) => {
-  req.session.destroy((_error) => {
+  req.session.destroy((error) => {
     res.clearCookie("auth");
     res.redirect("/login");
   });

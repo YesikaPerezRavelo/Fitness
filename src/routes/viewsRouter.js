@@ -2,8 +2,7 @@ import { Router } from "express";
 import { productManagerDB } from "../dao/productManagerDB.js";
 import messageManagerDB from "../dao/messageManagerDB.js";
 import cartManagerDB from "../dao/cartManagerDB.js";
-import { auth } from "../middlewares/auth.js";
-import { userModel } from "../dao/models/userModel.js";
+import { authToken } from "../utils/utils.js";
 import passport from "passport";
 
 const router = Router();
@@ -18,7 +17,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/login", async (req, res) => {
-  if (req.session.user) {
+  if (req.cookies.auth) {
     res.redirect("/user");
   } else {
     res.render("login", {
@@ -30,7 +29,7 @@ router.get("/login", async (req, res) => {
 });
 
 router.get("/register", (req, res) => {
-  if (req.session.user) {
+  if (req.cookies.auth) {
     res.redirect("/user");
   }
   res.render("register", {
@@ -39,19 +38,6 @@ router.get("/register", (req, res) => {
     failRegister: req.session.failRegister ?? false,
   });
 });
-
-// router.get("/user", auth, async (req, res) => {
-//   const userId = req.session.user._id;
-//   //make populate
-//   //CartId in user.cart
-//   const user = await userModel.findOne({ user: userId }).lean();
-//   res.render("user", {
-//     title: "YesFitness | Usuario",
-//     style: "index.css",
-//     user: req.session.user,
-//     cart: ["test1", "test2"],
-//   });
-// });
 
 router.get(
   "/user",
@@ -103,7 +89,7 @@ router.get("/chat", async (req, res) => {
   }
 });
 
-router.get("/cart", auth, async (req, res) => {
+router.get("/cart", authToken, async (req, res) => {
   const cartId = req.query.cid;
   try {
     const cart = await cartManagerService.getProductsFromCartByID(cartId);
